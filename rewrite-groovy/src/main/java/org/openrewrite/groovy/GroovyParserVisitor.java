@@ -2904,6 +2904,8 @@ public class GroovyParserVisitor {
             return isPatternOperator ? PATTERN_SINGLE_QUOTE_STRING : SINGLE_QUOTE_STRING;
         } else if (source.startsWith("[", c)) {
             return ARRAY;
+        } else if (source.startsWith("{", c)) {
+            return CLOSURE;
         }
 
         return null;
@@ -2911,7 +2913,7 @@ public class GroovyParserVisitor {
 
     private boolean validateIsDelimiter(@Nullable ASTNode node, int c) {
         if (node == null) {
-            return false;
+            return true;
         }
         FindBinaryOperationVisitor visitor = new FindBinaryOperationVisitor(source.substring(c, c + 1), c, sourceLineNumberOffsets);
         node.visit(visitor);
