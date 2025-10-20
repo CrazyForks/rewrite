@@ -199,7 +199,7 @@ class EnumTest implements RewriteTest {
           groovy(
             """
               enum A {
-                  ONE(1, "A"),
+                  ONE(1, "A", ),
                   TWO(2, "B", ")"),
                   THREE(3, $/C/$, 1);
 
@@ -271,6 +271,66 @@ class EnumTest implements RewriteTest {
                 private TagNameSerializer(String type, Function<String, String> fun) {
                     this.type = type
                     this.fun = fun
+                }
+            }
+            """
+          )
+        );
+    }
+
+    @Issue("https://github.com/openrewrite/rewrite/issues/6015")
+    @Test
+    void uris() {
+        rewriteRun(
+          groovy(
+            """
+            enum E {
+              LOCAL("http://localhost:8080/api/v1/clusters"),
+              LOCAL_WITH_ESCAPED_QUOTE("http://localhost:8080\\"/invalid/url/I/know")
+
+              E(String uri) {
+              }
+            }
+            """
+          )
+        );
+    }
+
+    @Test
+    void enumWithNamedArguments() {
+        rewriteRun(
+          groovy(
+            """
+              enum Mapped {
+                  SOME_ENUM_CONSTANT0(a: "0"),
+                  SOME_ENUM_CONSTANT1(a: "1"),
+                  SOME_ENUM_CONSTANT2(a: "1", b: "2"),
+                  SOME_ENUM_CONSTANT3(c: "3", d: "4")
+                  
+                  Mapped(Map args) {
+                      // Constructor that accepts a map
+                  }
+              }
+              """
+          )
+        );
+    }
+
+    @Test
+    void expressionsInArguments() {
+        rewriteRun(
+          groovy(
+            """
+            enum Status {
+                GOOD(PREFIX + " one. ", PREFIX + " two. ")
+
+                public static final String PREFIX = "{object}"
+                String a
+                String b
+
+                Status(String a, String b) {
+                    this.a = a
+                    this.b = b
                 }
             }
             """
